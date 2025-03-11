@@ -1,3 +1,6 @@
 [submodule "safe-wallet-monorepo"]
 	path = safe-wallet-monorepo
 	url = git@github.com:benceharomi/safe-wallet-monorepo.git
+[submodule "email-tx-builder"]
+	path = email-tx-builder
+	url = git@github.com:zkemail/email-tx-builder.git
