@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: safe_monitor
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - safe_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d safe_monitor"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      
+  safe-notification-service:
+    build:
+      context: ./email-tx-builder/packages/safe-notification-service
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - PORT=3030
+      - DATABASE_URL=postgresql://user:password@db:5432/safe_monitor
+      - RELAYER_URL=https://safe-2fa-relayer.zk.email
+      - CORS_ORIGIN=http://localhost:8080
+    volumes:
+      - ./email-tx-builder/packages/safe-notification-service:/app
+      - /app/node_modules
+    networks:
+      - safe_network
+    ports:
+      - 3030:3030
+    entrypoint: [
+      "sh", 
+      "-c", 
+      "cp /app/src/config/chains.example.json /app/src/config/chains.json && \
+      sed -i \"s|0000000000000000000000000000000000000000000000000000000000000000|$SNS_PRIVATE_KEY|g\" /app/src/config/chains.json && \
+      sh /app/docker-entrypoint.sh"
+    ]
+
+  safe-wallet:
+    build:
+      context: ./safe-wallet-monorepo
+    depends_on:
+      - safe-notification-service
+    environment:
+      - NEXT_PUBLIC_INFURA_TOKEN=${SWM_NEXT_PUBLIC_INFURA_TOKEN}
+      - NEXT_PUBLIC_WC_PROJECT_ID=${SWM_NEXT_PUBLIC_WC_PROJECT_ID}
+      - NEXT_PUBLIC_SNS_BACKEND_URL=http://localhost:3030
+    networks:
+      - safe_network
+    ports:
+      - 8080:8080
+
+volumes:
+  postgres_data:
+
+networks:
+  safe_network:
+    driver: bridge
