@@ -26,20 +26,16 @@ services:
       - DATABASE_URL=postgresql://user:password@db:5432/safe_monitor
       - RELAYER_URL=https://safe-2fa-relayer.zk.email
       - CORS_ORIGIN=http://localhost:8080
+      - FACTORY_ADDRESS=0x86227311CeDA2dbF64123854bcc359D6C4cDB8a3
+      - RPC_URL=https://sepolia.infura.io/v3/${SWM_NEXT_PUBLIC_INFURA_TOKEN}
+      - PRIVATE_KEY=${SNS_PRIVATE_KEY}
     volumes:
-      - ./email-tx-builder/packages/safe-notification-service:/app
-      - /app/node_modules
+      - ./email-tx-builder/packages/safe-notification-service/src:/app/src
+      - ./email-tx-builder/packages/safe-notification-service/prisma:/app/prisma
     networks:
       - safe_network
     ports:
       - 3030:3030
-    entrypoint: [
-      "sh", 
-      "-c", 
-      "cp /app/src/config/chains.example.json /app/src/config/chains.json && \
-      sed -i \"s|0000000000000000000000000000000000000000000000000000000000000000|$SNS_PRIVATE_KEY|g\" /app/src/config/chains.json && \
-      sh /app/docker-entrypoint.sh"
-    ]
 
   safe-wallet:
     build:
