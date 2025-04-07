@@ -25,7 +25,7 @@ services:
       - PORT=3030
       - DATABASE_URL=postgresql://user:password@db:5432/safe_monitor
       - RELAYER_URL=https://safe-2fa-relayer.zk.email
-      - CORS_ORIGIN=http://localhost:8080
+      - CORS_ORIGIN=http://localhost:3000
       - FACTORY_ADDRESS=0x86227311CeDA2dbF64123854bcc359D6C4cDB8a3
       - RPC_URL=https://sepolia.infura.io/v3/${SWM_NEXT_PUBLIC_INFURA_TOKEN}
       - PRIVATE_KEY=${SNS_PRIVATE_KEY}
@@ -40,16 +40,16 @@ services:
   safe-wallet:
     build:
       context: ./safe-wallet-monorepo
+      args:
+        - NEXT_PUBLIC_INFURA_TOKEN=${SWM_NEXT_PUBLIC_INFURA_TOKEN}
+        - NEXT_PUBLIC_WC_PROJECT_ID=${SWM_NEXT_PUBLIC_WC_PROJECT_ID}
+        - NEXT_PUBLIC_SNS_BACKEND_URL=http://localhost:3030
     depends_on:
       - safe-notification-service
-    environment:
-      - NEXT_PUBLIC_INFURA_TOKEN=${SWM_NEXT_PUBLIC_INFURA_TOKEN}
-      - NEXT_PUBLIC_WC_PROJECT_ID=${SWM_NEXT_PUBLIC_WC_PROJECT_ID}
-      - NEXT_PUBLIC_SNS_BACKEND_URL=http://localhost:3030
     networks:
       - safe_network
     ports:
-      - 8080:8080
+      - 3000:3000
 
 volumes:
   postgres_data:
