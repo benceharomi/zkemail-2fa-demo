@@ -26,9 +26,7 @@ Use `docker compose` to build the images and start the containers:
 docker compose up -d
 ```
 ### 4. try it out
-> Note: it takes a few minutes for the docker images to build, containers to start up and safe wallet to generate its static files, please be patient.
-
-As soon as everything is ready the wallet UI will be a available at http://localhost:8080
+As soon as everything is ready the wallet UI will be a available at http://localhost:3000
 
 ## Cleanup
 ```sh
